@@ -11,11 +11,13 @@ const int MAX_SIZE = 1024;
 const char *mqName = "/queue";
 
 int main(void){
+
     struct mq_attr attr;                
         /*respectively retrieve and modify attributes of the message
         queue referred to by the message queue descriptor mqdes*/
     attr.mq_maxmsg = MAX_MSG;
-    attr.mq_msgsize = MAX_SIZE;          
+    attr.mq_msgsize = MAX_SIZE; 
+             
         /*The  mq_maxmsg  and  mq_msgsize  fields  are  set  when  the  message  queue is created by
         mq_open(3).  The mq_maxmsg field is an upper limit on the number of messages that  may  be
         placed  on the queue using mq_send(3).  The mq_msgsize field is an upper limit on the size
