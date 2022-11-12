@@ -6,9 +6,9 @@
 #include <mqueue.h>
 #include <sys/fcntl.h>
 
-const int MAX_MSG 10;
-const int MAX_SIZE 1024;
-const char *mqName= "/queue";
+const int MAX_MSG = 10;
+const int MAX_SIZE = 1024;
+const char *mqName = "/queue";
 
 int main(void){
     struct mq_attr attr;                
@@ -26,11 +26,11 @@ int main(void){
 
     if (pid == 0){
         char file[MAX_SIZE];
-        FILE *fd;
-        fd = fopen("content.txt", O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
-        fgets(file, MAX_SIZE, fd);
+        FILE *fp;
+        fp = fopen("varfinatext.txt", "r");
+        fgets(file, MAX_SIZE, fp);
 
-        mqd_t mqd = mq_open(mqName,  O_RDWR | O_CREAT,(S_IRUSR | S_IWUSR), &attr);
+        mqd_t mqd = mq_open(mqName,  O_RDWR | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP, &attr);
         /* The <mqueue.h> header defines the mqd_t type, which is used for message queue descriptors.
         The mq_open() function establishes the connection between a process and a message queue with a message queue descriptor.
         It creates a open message queue description that refers to the message queue, and a message queue descriptor that refers to that open message queue description.
@@ -47,24 +47,23 @@ int main(void){
     } else{
         wait(NULL);
         char file[MAX_SIZE];
-        mqd_t mq = mq_open(mqName, O_RDONLY);
-        mq_receive(mq, file, MAX_SIZE, 0);
+        mqd_t mq = mq_open(mqName, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP, &attr);
+        mq_receive(mq, file, MAX_SIZE, NULL);
 
+        mq_unlink(mqName);
         mq_close(mq);
-        mq_unlink(mqName);  
+         
 
         /* https://www.tutorialspoint.com/c_standard_library/c_function_strtok.htm
         */
         char *token = strtok(file, " ");
-        int i = 0;
+        int x = 0;
         while (token != NULL)
         {
-            i++;
+            x++;
             token = strtok(NULL, " ");
         }
-
-        // count words in rcv
-        printf("%d\n", i);        
+        printf("%d\n", x);        
     }
 
 
