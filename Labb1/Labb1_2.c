@@ -4,9 +4,11 @@
 #include <sys/wait.h>
 #include <string.h>
 #include <mqueue.h>
+#include <sys/fcntl.h>
 
 const int MAX_MSG 10;
 const int MAX_SIZE 1024;
+const char *mqName= "/queue";
 
 int main(void){
     struct mq_attr attr;                
@@ -20,14 +22,15 @@ int main(void){
         of messages that may be placed on the queue.  Both of  these  fields  must  have  a  value
         greater than zero. https://manpages.ubuntu.com/manpages/bionic/man3/mq_getattr.3.html */
            
-    int pid = fork();
+    pid_t pid = fork();
 
     if (pid == 0){
         char file[MAX_SIZE];
         FILE *fd;
-        int fd = open("content.txt", O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+        fd = fopen("content.txt", O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+        fgets(file, MAX_SIZE, fd);
 
-        mqd_t mqd = mq_open(const char *"/queue",  O_RDWR | O_CREAT,(S_IRUSR | S_IWUSR), &attr);
+        mqd_t mqd = mq_open(mqName,  O_RDWR | O_CREAT,(S_IRUSR | S_IWUSR), &attr);
         /* The <mqueue.h> header defines the mqd_t type, which is used for message queue descriptors.
         The mq_open() function establishes the connection between a process and a message queue with a message queue descriptor.
         It creates a open message queue description that refers to the message queue, and a message queue descriptor that refers to that open message queue description.
@@ -40,12 +43,28 @@ int main(void){
         */
 
         mq_send(mqd, file, strlen(file), 0);
-
         mq_close(mqd);
     } else{
         wait(NULL);
-        char buffer[MAX_SIZE];
+        char file[MAX_SIZE];
+        mqd_t mq = mq_open(mqName, O_RDONLY);
+        mq_receive(mq, file, MAX_SIZE, 0);
 
+        mq_close(mq);
+        mq_unlink(mqName);  
+
+        /* https://www.tutorialspoint.com/c_standard_library/c_function_strtok.htm
+        */
+        char *token = strtok(file, " ");
+        int i = 0;
+        while (token != NULL)
+        {
+            i++;
+            token = strtok(NULL, " ");
+        }
+
+        // count words in rcv
+        printf("%d\n", i);        
     }
 
 
