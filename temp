@@ -1,0 +1,25 @@
+Föreläsning 1 "fyll i cod"
+
+1:
+
+pthread_create(&thread, NULL, thread_func, NULL);
+
+pthread_join(thread, NULL);
+
+
+2:
+
+pthread_create(&t1, NULL, thread_func, &i);
+pthread_create(&t2, NULL, thread_func, &j);
+
+pthread_join(t1, NULL);
+pthread_join(t2, NULL);
+
+
+3:
+
+pthread_create(&thread, NULL, thread_func, &in);
+
+pthread_join(t1, &out_void);
+
+out = out_void;
